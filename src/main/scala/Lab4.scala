@@ -37,12 +37,15 @@ object Lab4 extends jsy.util.JsyApplication {
   /* Lists */
   
   def compressRec[A](l: List[A]): List[A] = l match {
-    case Nil | _ :: Nil => throw new UnsupportedOperationException
-    case h1 :: (t1 @ (h2 :: _)) => throw new UnsupportedOperationException
+    case Nil | _ :: Nil => l
+    case h1 :: (t1 @ (h2 :: _)) => if (h1 == h2) compressRec(t1) else h1 :: compressRec(t1)
   }
   
   def compressFold[A](l: List[A]): List[A] = l.foldRight(Nil: List[A]){
-    (h, acc) => throw new UnsupportedOperationException
+    (h, acc) => acc match {
+      case (h1 :: h2) if (h == h1) => acc 
+      case _ => h :: acc
+    } 
   }
   
   def mapFirst[A](f: A => Option[A])(l: List[A]): List[A] = l match {
