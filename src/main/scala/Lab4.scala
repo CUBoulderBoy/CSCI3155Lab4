@@ -49,8 +49,11 @@ object Lab4 extends jsy.util.JsyApplication {
   }
   
   def mapFirst[A](f: A => Option[A])(l: List[A]): List[A] = l match {
-    case Nil => throw new UnsupportedOperationException
-    case h :: t => throw new UnsupportedOperationException
+    case Nil => l
+    case h :: t => f(h) match{
+      case Some(a) => a :: t
+      case None => h :: mapFirst(f)(t)
+    }
   }
   
   /* Search Trees */
