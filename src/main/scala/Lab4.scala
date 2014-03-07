@@ -93,7 +93,8 @@ object Lab4 extends jsy.util.JsyApplication {
   def strictlyOrdered(t: Tree): Boolean = {
     val (b, _) = t.foldLeft(true, None: Option[Int]){
       (acc: (Boolean, Option[Int]), current: Int) => (acc, current) match{
-        case ((true, None), c) => (true, Some(c)) 
+        case ((false, Some(i)), _) => (false, Some(i))
+      	case ((true, None), c) => (true, Some(c)) 
       	case ((b, Some(i)), c) => if (c < i) {
           (true, Some(c)) 
         } else (false, Some(i))
