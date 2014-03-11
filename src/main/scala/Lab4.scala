@@ -132,22 +132,44 @@ object Lab4 extends jsy.util.JsyApplication {
         case TNumber => TNumber
         case tgot => err(tgot, e1)
       }
-      case Unary(Not, e1) =>
-        throw new UnsupportedOperationException
-      case Binary(Plus, e1, e2) =>
-        throw new UnsupportedOperationException
-      case Binary(Minus|Times|Div, e1, e2) => 
-        throw new UnsupportedOperationException
-      case Binary(Eq|Ne, e1, e2) =>
-        throw new UnsupportedOperationException
-      case Binary(Lt|Le|Gt|Ge, e1, e2) =>
-        throw new UnsupportedOperationException
-      case Binary(And|Or, e1, e2) =>
-        throw new UnsupportedOperationException
-      case Binary(Seq, e1, e2) =>
-        throw new UnsupportedOperationException
-      case If(e1, e2, e3) =>
-        throw new UnsupportedOperationException
+      case Unary(Not, e1) => typ(e1) match{
+        case TNumber => TNumber
+        case tgot => err(tgot, e1)
+      }
+        
+      case Binary(Plus, e1, e2) => (typ(e1), typ(e2)) match{
+        case (TString, TString) => TString
+        case (TNumber, TNumber) => TNumber
+        case (e1got, e2got) => err(e1got, e1)
+      }
+      
+      case Binary(bop @ (Minus|Times|Div), e1, e2) => (typ(e1), typ(e2)) match{
+        case (TNumber, TNumber) => TNumber
+        case (e1got, e2got) => err(e1got, e1)
+      }
+      case Binary(bop @ (Eq|Ne), e1, e2) => (typ(e1), typ(e2)) match{
+      	case (TFunction(a, b), _) => err(TFunction(a, b), e1)
+      	case (_, TFunction(a, b)) => err(TFunction(a, b), e1)
+      	case (e1got, e2got) => if (e1got == e2got) TBool else err(e1got, e1)
+      }
+
+      case Binary(bop @ (Lt|Le|Gt|Ge), e1, e2) => (typ(e1), typ(e2)) match{
+        case (TString, TString) => TBool
+        case (TNumber, TNumber) => TBool
+        case (e1got, e2got) => err(e1got, e1)
+      }
+      
+      case Binary(And|Or, e1, e2) =>(typ(e1), typ(e2)) match{
+        case (TBool, TBool) => TBool
+        case (e1got, e2got) => err(e1got, e1)
+      }
+      case Binary(Seq, e1, e2) => typ(e2)
+
+      case If(e1, e2, e3) => (typ(e1), typ(e2), typ(e3)) match{
+        case (TBool, e2got, e3got) if (e2got == e3got) => e2got
+        case (e1got, e2got, e3got) => err(e1got, e1)
+      }
+      
       case Function(p, params, tann, e1) => {
         // Bind to env1 an environment that extends env with an appropriate binding if
         // the function is potentially recursive.
@@ -158,27 +180,35 @@ object Lab4 extends jsy.util.JsyApplication {
           case (None, _) => env
           case _ => err(TUndefined, e1)
         }
+        
         // Bind to env2 an environment that extends env1 with bindings for params.
-        val env2 = throw new UnsupportedOperationException
+        val env2 = env1 ++ params
+        
         // Match on whether the return type is specified.
         tann match {
-          case None => throw new UnsupportedOperationException
-          case Some(tret) => throw new UnsupportedOperationException
+          case None => TFunction(params, typeInfer(env2, e1))
+          case Some(tret) => TFunction(params, tret)
         }
       }
       case Call(e1, args) => typ(e1) match {
         case TFunction(params, tret) if (params.length == args.length) => {
-          (params, args).zipped.foreach {
-            throw new UnsupportedOperationException
-          };
-          tret
-        }
+          (params, args).zipped.foreach{
+            case ((x, t), ex) => if (t != typ(ex)) err(t, ex)
+          } 
+        };
+        tret
         case tgot => err(tgot, e1)
       }
       case Obj(fields) =>
-        throw new UnsupportedOperationException
-      case GetField(e1, f) =>
-        throw new UnsupportedOperationException
+        TObj(fields.mapValues((exp: Expr) => typ(exp)))
+        
+      case GetField(e1, f) => typ(e1) match {
+        case TObj(mappy) => mappy.get(f) match{
+          case Some(t) => t
+          case _ => err(TUndefined, e1)
+        }
+        case _ => err(typ(e1), e1)
+      }
     }
   }
   
