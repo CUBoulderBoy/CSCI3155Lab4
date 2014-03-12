@@ -248,14 +248,18 @@ object Lab4 extends jsy.util.JsyApplication {
       case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))
       case Var(y) => if (x == y) v else e
       case ConstDecl(y, e1, e2) => ConstDecl(y, subst(e1), if (x == y) e2 else subst(e2))
-      case Function(p, params, tann, e1) =>
-        throw new UnsupportedOperationException
-      case Call(e1, args) =>
-        throw new UnsupportedOperationException
+      case Function(p, params, tann, e1) => {
+        if (p == Some(x) || params.contains(x)){
+          Function(p, params, tann, e1)
+        }
+        else{
+          Function(p, params, tann, subst(e1))
+        }
+      }
+      case Call(e1, args) => Call(subst(e1), args)
       case Obj(fields) =>
         throw new UnsupportedOperationException
-      case GetField(e1, f) =>
-        throw new UnsupportedOperationException
+      case GetField(e1, f) => GetField(subst(e1), f)
     }
   }
   
@@ -291,7 +295,14 @@ object Lab4 extends jsy.util.JsyApplication {
           }
           case _ => throw new StuckError(e)
         }
-      /*** Fill-in more cases here. ***/
+      case GetField(v1, f) => v1 match{
+        case Obj(mappy) => mappy.get(f) match {
+          case Some(e1) if (isValue(e1)) => e1
+          case Some(e1) => step(e1)
+          case _ => throw new StuckError(e)
+        }
+        case _ => throw new StuckError(e)
+      }
         
       /* Inductive Cases: Search Rules */
       case Print(e1) => Print(step(e1))
