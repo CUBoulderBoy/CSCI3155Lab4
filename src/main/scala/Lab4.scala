@@ -121,55 +121,82 @@ object Lab4 extends jsy.util.JsyApplication {
     def err[T](tgot: Typ, e1: Expr): T = throw StaticTypeError(tgot, e1, e)
 
     e match {
+      //TypePrint
       case Print(e1) => typ(e1); TUndefined
+      
+      //TypeNumber
       case N(_) => TNumber
+      
+      //TypeBool
       case B(_) => TBool
+      
+      //TypeUndefined
       case Undefined => TUndefined
+      
+      //TypeString
       case S(_) => TString
+      
+      //TypeVar
       case Var(x) => env(x)
+      
+      //TypeConst
       case ConstDecl(x, e1, e2) => typeInfer(env + (x -> typ(e1)), e2)
+      
+      //TypeNeg
       case Unary(Neg, e1) => typ(e1) match {
         case TNumber => TNumber
         case tgot => err(tgot, e1)
       }
+      
+      //TypeNot
       case Unary(Not, e1) => typ(e1) match{
-        case TNumber => TNumber
+        case TBool => TBool
         case tgot => err(tgot, e1)
       }
-        
+      
+      //TypeArith(Plus) & TypePlusString
       case Binary(Plus, e1, e2) => (typ(e1), typ(e2)) match{
         case (TString, TString) => TString
         case (TNumber, TNumber) => TNumber
         case (e1got, e2got) => err(e1got, e1)
       }
       
+      //TypeArith
       case Binary(bop @ (Minus|Times|Div), e1, e2) => (typ(e1), typ(e2)) match{
         case (TNumber, TNumber) => TNumber
         case (e1got, e2got) => err(e1got, e1)
       }
+      
+      //TypeEquality
       case Binary(bop @ (Eq|Ne), e1, e2) => (typ(e1), typ(e2)) match{
       	case (TFunction(a, b), _) => err(TFunction(a, b), e1)
       	case (_, TFunction(a, b)) => err(TFunction(a, b), e1)
       	case (e1got, e2got) => if (e1got == e2got) TBool else err(e1got, e1)
       }
 
+      //TypeInequalityNumber & TypeInequalityString
       case Binary(bop @ (Lt|Le|Gt|Ge), e1, e2) => (typ(e1), typ(e2)) match{
         case (TString, TString) => TBool
         case (TNumber, TNumber) => TBool
         case (e1got, e2got) => err(e1got, e1)
       }
       
+      //TypeAndOr
       case Binary(And|Or, e1, e2) =>(typ(e1), typ(e2)) match{
         case (TBool, TBool) => TBool
         case (e1got, e2got) => err(e1got, e1)
       }
+      
+      //TypeSeq
       case Binary(Seq, e1, e2) => typ(e2)
 
+      //TypeIf
       case If(e1, e2, e3) => (typ(e1), typ(e2), typ(e3)) match{
         case (TBool, e2got, e3got) if (e2got == e3got) => e2got
         case (e1got, e2got, e3got) => err(e1got, e1)
       }
       
+      //TypeFunction & TypeFunctionAnn
       case Function(p, params, tann, e1) => {
         // Bind to env1 an environment that extends env with an appropriate binding if
         // the function is potentially recursive.
@@ -190,6 +217,8 @@ object Lab4 extends jsy.util.JsyApplication {
           case Some(tret) => TFunction(params, tret)
         }
       }
+      
+      //TypeCall
       case Call(e1, args) => typ(e1) match {
         case TFunction(params, tret) if (params.length == args.length) => {
           (params, args).zipped.foreach{
@@ -199,9 +228,12 @@ object Lab4 extends jsy.util.JsyApplication {
         tret
         case tgot => err(tgot, e1)
       }
+      
+      //TypeObject
       case Obj(fields) =>
         TObj(fields.mapValues((exp: Expr) => typ(exp)))
-        
+      
+      //TypeGetField
       case GetField(e1, f) => typ(e1) match {
         case TObj(mappy) => mappy.get(f) match{
           case Some(t) => t
@@ -248,6 +280,7 @@ object Lab4 extends jsy.util.JsyApplication {
       case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))
       case Var(y) => if (x == y) v else e
       case ConstDecl(y, e1, e2) => ConstDecl(y, subst(e1), if (x == y) e2 else subst(e2))
+      
       case Function(p, params, tann, e1) => {
         if (p == Some(x) || params.contains(x)){
           Function(p, params, tann, e1)
@@ -256,9 +289,16 @@ object Lab4 extends jsy.util.JsyApplication {
           Function(p, params, tann, subst(e1))
         }
       }
-      case Call(e1, args) => Call(subst(e1), args)
-      case Obj(fields) =>
-        throw new UnsupportedOperationException
+      
+      case Call(e1, args) => Call(subst(e1), args.foldLeft(List(): List[Expr]){
+            (acc: List[Expr], e2: Expr) => acc :+ subst(e2)})
+      
+      case Obj(fields) => Obj(fields.foldLeft(Map(): Map[String, Expr]){
+            (acc: Map[String, Expr], m1: (String, Expr)) => m1 match{
+              case (s1, e2) => acc + (s1 -> subst(e2))
+          }
+      })
+      
       case GetField(e1, f) => GetField(subst(e1), f)
     }
   }
@@ -270,48 +310,116 @@ object Lab4 extends jsy.util.JsyApplication {
     
     e match {
       /* Base Cases: Do Rules */
+      //DoPrint
       case Print(v1) if isValue(v1) => println(pretty(v1)); Undefined
+      
+      //DoNeg
       case Unary(Neg, N(n1)) => N(- n1)
+      
+      //DoNot
       case Unary(Not, B(b1)) => B(! b1)
+      
+      //DoSeq
       case Binary(Seq, v1, e2) if isValue(v1) => e2
+      
+      //DoPlusString
       case Binary(Plus, S(s1), S(s2)) => S(s1 + s2)
+      
+      //DoArith
       case Binary(Plus, N(n1), N(n2)) => N(n1 + n2)
+      case Binary(Minus, N(n1), N(n2)) => N(n1 - n2)
+      case Binary(Times, N(n1), N(n2)) => N(n1 * n2)
+      case Binary(Div, N(n1), N(n2)) => N(n1 / n2)
+      
+      //DoInequalityNumber & DoInequalityString
       case Binary(bop @ (Lt|Le|Gt|Ge), v1, v2) if isValue(v1) && isValue(v2) => B(inequalityVal(bop, v1, v2))
+      
+      //DoEquality
       case Binary(Eq, v1, v2) if isValue(v1) && isValue(v2) => B(v1 == v2)
       case Binary(Ne, v1, v2) if isValue(v1) && isValue(v2) => B(v1 != v2)
+      
+      //DoAndTrue & DoAndFalse
       case Binary(And, B(b1), e2) => if (b1) e2 else B(false)
+      
+      //DoOrTrue & DoOrFalse
       case Binary(Or, B(b1), e2) => if (b1) B(true) else e2
+      
+      //DoIfTrue & DoIfFalse
+      case If(B(b1), e2, e3) => if (b1) e2 else e3
+      
+      //DoConstDecl
       case ConstDecl(x, v1, e2) if isValue(v1) => substitute(e2, v1, x)
+      
+      //DoCall & DoCallRec
       case Call(v1, args) if isValue(v1) && (args forall isValue) =>
         v1 match {
-          case Function(p, params, _, e1) => {
+          case Function(p, params, t, e1) => {
+            //Zipped works by appending the first list with the second
+            //A list of tupples and a list become List(Tuple, Val)
             val e1p = (params, args).zipped.foldRight(e1){
-              throw new UnsupportedOperationException
+              (vars: ((String, Typ), Expr), acc: Expr) => (vars, acc) match {
+                case (((x, t), v1), e1) => substitute(e1, v1, x)
+              }
             }
             p match {
-              case None => throw new UnsupportedOperationException
-              case Some(x1) => throw new UnsupportedOperationException
+              case None => e1p
+              case Some(x1) => substitute(e1p, Function(Some(x1), params, t, e1), x1)
             }
           }
           case _ => throw new StuckError(e)
         }
+      
+      //DoGetField & SearchGetField
       case GetField(v1, f) => v1 match{
         case Obj(mappy) => mappy.get(f) match {
-          case Some(e1) if (isValue(e1)) => e1
-          case Some(e1) => step(e1)
+          case Some(v1) if (isValue(v1)) => v1
+          case Some(v1) => step(v1)
           case _ => throw new StuckError(e)
         }
         case _ => throw new StuckError(e)
       }
         
       /* Inductive Cases: Search Rules */
+      //SearchPrint
       case Print(e1) => Print(step(e1))
+      
+      //SearchUnary
       case Unary(uop, e1) => Unary(uop, step(e1))
+      
+      //SearchBinary1
       case Binary(bop, v1, e2) if isValue(v1) => Binary(bop, v1, step(e2))
+      
+      //SearchBinary2
       case Binary(bop, e1, e2) => Binary(bop, step(e1), e2)
+      
+      //SearchIf
       case If(e1, e2, e3) => If(step(e1), e2, e3)
+      
+      //SearchConst
       case ConstDecl(x, e1, e2) => ConstDecl(x, step(e1), e2)
-      /*** Fill-in more cases here. ***/
+      
+      //SearchCall1 & SearchCall2
+      case Call(v1, args) => v1 match{
+        case Function(None, params, t, e1) => {
+          Call(Function(None, params, t, e1), args.foldLeft(List(): List[Expr]){
+            (acc: List[Expr], e1: Expr) => if (isValue(e1)) {acc :+ e1} else {acc :+ step(e1)}
+          })
+        }
+        case Function(Some(f), params, t, e1) => {
+          Call(Function(Some(f), params, t, e1), args.foldLeft(List(): List[Expr]){
+            (acc: List[Expr], e1: Expr) => if (isValue(e1)) {acc :+ e1} else {acc :+ step(e1)}
+          })
+        }
+        case e1 => Call(step(e1), args)
+      }
+      
+      //SearchObject
+      case Obj(mappy) => Obj(mappy.foldLeft(Map(): Map[String, Expr]){
+            (acc: Map[String, Expr], m1: (String, Expr)) => m1 match{
+              case (s1, e1) if (isValue(e1)) => acc + (s1 -> e1)
+              case (s1, e1) => acc + (s1 -> step(e1))
+          }
+      })
       
       /* Everything else is a stuck error. Should not happen if e is well-typed. */
       case _ => throw StuckError(e)
