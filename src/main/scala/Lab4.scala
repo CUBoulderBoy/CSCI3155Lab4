@@ -282,7 +282,12 @@ object Lab4 extends jsy.util.JsyApplication {
       case ConstDecl(y, e1, e2) => ConstDecl(y, subst(e1), if (x == y) e2 else subst(e2))
       
       case Function(p, params, tann, e1) => {
-        if (p == Some(x) || params.contains(x)){
+        val ret = 0
+        params.foldLeft(ret: Int){
+        	(ret: Int, c: (String, Typ)) => c match{
+        	  case (x2, t) if (x == x2) => ret + 1
+        	  case (x2, t) => ret}}
+        if (p == Some(x) || (ret != 0)){
           Function(p, params, tann, e1)
         }
         else{
