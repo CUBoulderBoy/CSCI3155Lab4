@@ -282,8 +282,8 @@ object Lab4 extends jsy.util.JsyApplication {
       case ConstDecl(y, e1, e2) => ConstDecl(y, subst(e1), if (x == y) e2 else subst(e2))
       
       case Function(p, params, tann, e1) => {
-        val ret = 0
-        params.foldLeft(ret: Int){
+        val ret =
+        params.foldLeft(0: Int){
         	(ret: Int, c: (String, Typ)) => c match{
         	  case (x2, t) if (x == x2) => ret + 1
         	  case (x2, t) => ret}}
