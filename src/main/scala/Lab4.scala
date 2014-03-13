@@ -407,12 +407,26 @@ object Lab4 extends jsy.util.JsyApplication {
       case Call(v1, args) => v1 match{
         case Function(None, params, t, e1) => {
           Call(Function(None, params, t, e1), args.foldLeft(List(): List[Expr]){
-            (acc: List[Expr], e1: Expr) => if (isValue(e1)) {acc :+ e1} else {acc :+ step(e1)}
+            (acc: List[Expr], e1: Expr) => {
+              var first = false
+              if (isValue(e1) || first) {acc :+ e1} 
+              else {
+                first = true
+                acc :+ step(e1)
+              }
+            }
           })
         }
         case Function(Some(f), params, t, e1) => {
           Call(Function(Some(f), params, t, e1), args.foldLeft(List(): List[Expr]){
-            (acc: List[Expr], e1: Expr) => if (isValue(e1)) {acc :+ e1} else {acc :+ step(e1)}
+            (acc: List[Expr], e1: Expr) => {
+              var first = false
+              if (isValue(e1) || first) {acc :+ e1} 
+              else {
+                first = true
+                acc :+ step(e1)
+              }
+            }
           })
         }
         case e1 => Call(step(e1), args)

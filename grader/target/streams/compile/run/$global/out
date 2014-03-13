@@ -6,8 +6,8 @@
 [0m[[0mdebug[0m] [0m	C:\Users\Christopher\Dropbox\Documents\Education\CU Boulder\Spring 2014\CSCI 3155\Lab 4\CSCI3155Lab4\lib\liblab4.jar[0m
 [0m[[0mdebug[0m] [0m	C:\Users\Christopher\Dropbox\Documents\Education\CU Boulder\Spring 2014\CSCI 3155\Lab 4\CSCI3155Lab4\lib\scalatest_2.10-2.0.jar[0m
 [0m[[0mdebug[0m] [0m	C:\Users\Christopher\.sbt\boot\scala-2.10.3\lib\scala-library.jar[0m
-[0m[[0mdebug[0m] [0mWaiting for thread run-main-0 to terminate.[0m
-[0m[[0mdebug[0m] [0m	Thread run-main-0 exited.[0m
+[0m[[0mdebug[0m] [0mWaiting for thread run-main-1 to terminate.[0m
+[0m[[0mdebug[0m] [0m	Thread run-main-1 exited.[0m
 [0m[[0mdebug[0m] [0mInterrupting remaining threads (should be all daemons).[0m
 [0m[[0mdebug[0m] [0mSandboxed run complete..[0m
 [0m[[0mdebug[0m] [0mExited with code 0[0m

@@ -16,13 +16,13 @@
 [0m[[0minfo[0m] [0mCompiling 1 Scala source to C:\Users\Christopher\Dropbox\Documents\Education\CU Boulder\Spring 2014\CSCI 3155\Lab 4\CSCI3155Lab4\target\scala-2.10\classes...[0m
 [0m[[0mdebug[0m] [0mGetting compiler-interface from component compiler for Scala 2.10.3[0m
 [0m[[0mdebug[0m] [0mGetting compiler-interface from component compiler for Scala 2.10.3[0m
-[0m[[0mdebug[0m] [0mRunning cached compiler 379330f7, interfacing (CompilerInterface) with Scala compiler version 2.10.3[0m
+[0m[[0mdebug[0m] [0mRunning cached compiler ce18b90, interfacing (CompilerInterface) with Scala compiler version 2.10.3[0m
 [0m[[0mdebug[0m] [0mCalling Scala compiler with arguments  (CompilerInterface):[0m
 [0m[[0mdebug[0m] [0m	-bootclasspath[0m
 [0m[[0mdebug[0m] [0m	C:\Program Files\Java\jre7\lib\resources.jar;C:\Program Files\Java\jre7\lib\rt.jar;C:\Program Files\Java\jre7\lib\sunrsasign.jar;C:\Program Files\Java\jre7\lib\jsse.jar;C:\Program Files\Java\jre7\lib\jce.jar;C:\Program Files\Java\jre7\lib\charsets.jar;C:\Program Files\Java\jre7\lib\jfr.jar;C:\Program Files\Java\jre7\classes;C:\Users\Christopher\.sbt\boot\scala-2.10.3\lib\scala-library.jar[0m
 [0m[[0mdebug[0m] [0m	-classpath[0m
 [0m[[0mdebug[0m] [0m	C:\Users\Christopher\Dropbox\Documents\Education\CU Boulder\Spring 2014\CSCI 3155\Lab 4\CSCI3155Lab4\target\scala-2.10\classes;C:\Users\Christopher\Dropbox\Documents\Education\CU Boulder\Spring 2014\CSCI 3155\Lab 4\CSCI3155Lab4\lib\liblab4.jar;C:\Users\Christopher\Dropbox\Documents\Education\CU Boulder\Spring 2014\CSCI 3155\Lab 4\CSCI3155Lab4\lib\scalatest_2.10-2.0.jar[0m
-[0m[[0mdebug[0m] [0mScala compilation took 23.769949987 s[0m
+[0m[[0mdebug[0m] [0mScala compilation took 8.254124024 s[0m
 [0m[[0mdebug[0m] [0mInvalidated by transitive public inheritance: Set()[0m
 [0m[[0mdebug[0m] [0mInvalidated by direct dependency: Set()[0m
 [0m[[0mdebug[0m] [0mNew invalidations:[0m
