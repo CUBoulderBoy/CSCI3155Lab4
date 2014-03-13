@@ -420,10 +420,17 @@ object Lab4 extends jsy.util.JsyApplication {
       
       //SearchObject
       case Obj(mappy) => Obj(mappy.foldLeft(Map(): Map[String, Expr]){
-            (acc: Map[String, Expr], m1: (String, Expr)) => m1 match{
-              case (s1, e1) if (isValue(e1)) => acc + (s1 -> e1)
-              case (s1, e1) => acc + (s1 -> step(e1))
-          }
+            (acc: Map[String, Expr], m1: (String, Expr)) => {
+              var first = false
+              m1 match{
+	              case (s1, e1) if (isValue(e1)) => acc + (s1 -> e1)
+	              case (s1, e1) if (!first) => {
+	                first = true
+	                acc + (s1 -> step(e1))
+	              }
+	              case (s1, e1) => acc + (s1 -> e1)
+              }
+            }
       })
       
       /* Everything else is a stuck error. Should not happen if e is well-typed. */
